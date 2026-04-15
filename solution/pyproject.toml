@@ -1,0 +1,30 @@
+[project]
+name = "coding-assistant"
+version = "0.1.0"
+description = "Simple coding assistant made using Pydantic AI."
+readme = "README.md"
+authors = [
+    { name = "Jan Willem Kleinrouweler", email = "janwillemkl@gmail.com" },
+]
+requires-python = ">=3.14"
+dependencies = [
+    "pydantic-ai-slim[openai]>=1.82.0",
+    "python-dotenv>=1.2.2",
+    "python-frontmatter>=1.1.0",
+    "pyyaml>=6.0.3",
+    "rich>=15.0.0",
+]
+
+[project.scripts]
+coding-assistant = "coding_assistant.main:main"
+
+[build-system]
+requires = ["uv_build>=0.10.2,<0.11.0"]
+build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 80
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "UP", "D"]
