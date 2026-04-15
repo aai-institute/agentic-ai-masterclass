@@ -1,0 +1,4 @@
+{
+	"name": "appliedAI - Introduction to Agentic AI",
+	"build": { "dockerfile": "Dockerfile" },
+}
