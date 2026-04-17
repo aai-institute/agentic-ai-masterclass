@@ -65,6 +65,10 @@ def write_skill(
     content : str
         The contents of the skill.
 
+    Returns
+    -------
+    str
+        The content of the new skill file.
     """
     file_path = f"skills/{skill_name}.md"
 
