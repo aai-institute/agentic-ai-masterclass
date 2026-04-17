@@ -3,7 +3,7 @@ name: how-to-write-new-skills
 description: Learn how to write new skills to remember useful information, procedures, or code for future use.
 ---
 
-When asked to create a new skill, generate a complete SKILL.md file.
+When asked to create a new skill, generate a complete `skills/[SKILL-NAME].md` file.
 
 Read the `python-docstrings` skill for a working example.
 
