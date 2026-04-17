@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Annotated
-from pydantic import Field
+from typing import Any, Callable
 
 import frontmatter
 from pydantic_ai import RunContext
@@ -28,27 +27,9 @@ def load_skill(skill_name: str) -> str:
 
 
 def write_skill(
-    skill_name: Annotated[
-        str,
-        Field(
-            ...,
-            description="The name of the skill to write. Make sure to be expressive as it will be identified by it.",
-        ),
-    ],
-    description: Annotated[
-        str,
-        Field(
-            ...,
-            description="A brief description of the skill that's placed at the top of the skill file. Be sure to be expressive as it is used to evaluate the usefulness of the skill.",
-        ),
-    ],
-    content: Annotated[
-        str,
-        Field(
-            ...,
-            description="The contents of the skill. Be sure to be expressive and detailed as it describes the skill and how to act on it.",
-        ),
-    ],
+    skill_name: str,
+    description: str,
+    content: str,
 ) -> str:
     """Write a new skill.
 
@@ -110,20 +91,19 @@ def _build_skills_instructions() -> str:
 
 @dataclass
 class Skills(AbstractCapability[Any]):
-    def get_instructions(self):
+    def get_instructions(self) -> Callable[[RunContext[Any]], str]:
         def resolve_instructions(ctx: RunContext[Any]) -> str:
-            
-            ctx.deps.console.log("Note, the Skills are being re-loaded during run-time ...")
+
+            ctx.deps.console.log(
+                "Note, the Skills are being re-loaded during run-time ..."
+            )
 
             return _build_skills_instructions()
-        
+
         return resolve_instructions
 
-    def get_toolset(self):
-        def resolve_toolset(_: RunContext[Any]) -> FunctionToolset:
-            toolset = FunctionToolset()
-            toolset.add_function(load_skill)
-            toolset.add_function(write_skill)
-            return toolset
-
-        return resolve_toolset
+    def get_toolset(self) -> FunctionToolset:
+        toolset = FunctionToolset()
+        toolset.add_function(load_skill)
+        toolset.add_function(write_skill)
+        return toolset
