@@ -54,6 +54,9 @@ def write_skill(
     """
     file_path = f"skills/{skill_name}.md"
 
+    # Make sure the directory exists before writing the skill file. 
+    Path(file_path).parent.mkdir(parents=True, exist_ok=True)
+
     skill = frontmatter.Post(content)
     skill.metadata["name"] = skill_name
     skill.metadata["description"] = description
