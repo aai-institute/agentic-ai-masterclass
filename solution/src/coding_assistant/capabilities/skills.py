@@ -1,8 +1,10 @@
+import frontmatter
+import re
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
-import frontmatter
 from pydantic_ai import RunContext
 from pydantic_ai.capabilities import AbstractCapability
 from pydantic_ai.toolsets import FunctionToolset
@@ -52,9 +54,15 @@ def write_skill(
     str
         The content of the new skill file.
     """
+    pattern = r"[_/.]+"
     file_path = f"skills/{skill_name}.md"
 
-    # Make sure the directory exists before writing the skill file. 
+    if re.search(pattern, skill_name):
+        return (
+            "Error: Skill name cannot contain special characters like '/', '_', or '.'."
+        )
+
+    # Make sure the directory exists before writing the skill file.
     Path(file_path).parent.mkdir(parents=True, exist_ok=True)
 
     skill = frontmatter.Post(content)
@@ -65,7 +73,7 @@ def write_skill(
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(frontmatter.dumps(skill))
 
-    return f"Skill written successfully. Content: {skill.content}"
+    return "Skill written successfully."
 
 
 def _build_skills_instructions() -> str:
