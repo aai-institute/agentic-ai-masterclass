@@ -4,6 +4,7 @@ from typing import Any, Annotated
 from pydantic import Field
 
 import frontmatter
+from pydantic_ai import RunContext
 from pydantic_ai.capabilities import AbstractCapability
 from pydantic_ai.toolsets import FunctionToolset
 
@@ -83,31 +84,46 @@ def write_skill(
     return f"Skill written successfully. Content: {skill.content}"
 
 
+def _build_skills_instructions() -> str:
+    files = sorted(Path("skills").glob("*.md"))
+
+    lines = [
+        "You can extend your capabilities by using skills.",
+        "Use a skill when doing tasks described in the skill.",
+        "Use skills to store useful information, procedures, or preferences.",
+        "",
+        "You have the following skills available:",
+    ]
+
+    if not files:
+        lines.append("- No skills available yet.")
+        return "\n".join(lines)
+
+    for file in files:
+        skill = frontmatter.load(str(file))
+        name = skill.metadata.get("name", file.stem)
+        description = skill.metadata.get("description", "No description provided.")
+        lines.append(f"- {name}: {description}")
+
+    return "\n".join(lines)
+
+
 @dataclass
 class Skills(AbstractCapability[Any]):
-    def get_instructions(self) -> str:
-        result = (
-            "You can extend your capabilities by using skills.\n"
-            "Use a skill when doing tasks described in the skill.\n"
-            "Use skills to store useful information, procedures, or preferences.\n\n"
-            "You have the following skills available:"
-        )
+    def get_instructions(self):
+        def resolve_instructions(ctx: RunContext[Any]) -> str:
+            
+            ctx.deps.console.log("Note, the Skills are being re-loaded during run-time ...")
 
-        files = Path("skills").glob("*.md")
+            return _build_skills_instructions()
+        
+        return resolve_instructions
 
-        for f in files:
-            skill = frontmatter.load(str(f))
+    def get_toolset(self):
+        def resolve_toolset(_: RunContext[Any]) -> FunctionToolset:
+            toolset = FunctionToolset()
+            toolset.add_function(load_skill)
+            toolset.add_function(write_skill)
+            return toolset
 
-            name = skill.metadata.get("name")
-            description = skill.metadata.get("description")
-
-            result += f"- {name}: {description}"
-
-        return result
-
-    def get_toolset(self) -> FunctionToolset:
-        toolset = FunctionToolset()
-        toolset.add_function(load_skill)
-        toolset.add_function(write_skill)
-
-        return toolset
+        return resolve_toolset
