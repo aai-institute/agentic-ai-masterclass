@@ -1,4 +1,4 @@
-# Introduction to Agentic AI
+# Building AI Agents
 
 This masterclass is designed to guide you through building a simple, yet
 functional, coding assistant using Pydantic AI. Over the course of the
